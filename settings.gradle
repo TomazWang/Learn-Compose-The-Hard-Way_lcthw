@@ -6,5 +6,5 @@ dependencyResolutionManagement {
         jcenter() // Warning: this repository is going to shut down soon
     }
 }
-rootProject.name = "Learn Compose The Hard Way"
+rootProject.name = "Learn-Compose-The-Hard-Way_lcthw"
 include ':app'
