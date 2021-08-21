@@ -33,7 +33,7 @@ import com.tomazwang.lcthw.ui.theme.SpotiColor
  **/
 
 @Composable
-fun SpotiGenereBlock(
+fun SpotiGenreBlock(
     title: String,
     @DrawableRes coverImgRes: Int,
     color: Color,
@@ -96,7 +96,7 @@ fun SpotiGenereBlock(
 )
 @Composable
 fun PreviewSpotiGenereBlock() {
-    SpotiGenereBlock(
+    SpotiGenreBlock(
         "Folk", R.drawable.cover10, SpotiColor.coverColor1,
         modifier = Modifier
             .width(160.dp)

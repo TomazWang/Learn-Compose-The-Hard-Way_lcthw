@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -25,7 +26,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tomazwang.lcthw.data.model.MusicGenre
+import com.tomazwang.lcthw.data.repo.SpotiSearchRepo
 import com.tomazwang.lcthw.ui.theme.SpotiColor
+import com.tomazwang.lcthw.views.component.SpotiGenreBlock
 
 /**
  * Created by TomazWang on 2021/08/18.
@@ -37,6 +41,9 @@ import com.tomazwang.lcthw.ui.theme.SpotiColor
 
 @Composable
 fun SpotiSearchScreen() {
+    
+    val repo = SpotiSearchRepo()
+    
     LazyColumn(
         modifier = Modifier
             .fillMaxHeight()
@@ -64,18 +71,49 @@ fun SpotiSearchScreen() {
         }
         
         
-        item { GenreRow() }
-        item { GenreRow() }
+        items(repo.getTopGenreList().chunked(2)) { twoItem ->
+            val (first, second) = twoItem
+            GenreRow(first = first, second = second)
+        }
         
         item {
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = "Browse all", color = Color.White, fontWeight = FontWeight.Bold)
         }
         
-        items(20) { GenreRow() }
+        items(repo.getAllGenreList().chunked(2)) { twoItem ->
+            val (first, second) = twoItem
+            GenreRow(first = first, second = second)
+        }
         
     }
 }
+
+
+@Composable
+private fun GenreRow(first: MusicGenre, second: MusicGenre) {
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 4.dp)
+    ) {
+        SpotiGenreBlock(
+            title = first.title,
+            coverImgRes = first.image,
+            color = first.color,
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        SpotiGenreBlock(
+            title = second.title,
+            coverImgRes = second.image,
+            color = second.color,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
 
 
 @Composable
@@ -105,36 +143,6 @@ private fun SearchBox(hintText: String, modifier: Modifier = Modifier) {
 }
 
 
-@Composable
-private fun GenreRow() {
-    
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 4.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(4.dp))
-                .background(color = Color.White)
-                .height(80.dp)
-                .padding(8.dp)
-        )
-        
-        
-        Spacer(modifier = Modifier.width(12.dp))
-        
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(4.dp))
-                .background(color = Color.White)
-                .height(80.dp)
-                .padding(8.dp)
-        )
-    }
-}
 
 
 @Preview(
