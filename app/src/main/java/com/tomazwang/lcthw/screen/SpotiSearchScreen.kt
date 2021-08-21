@@ -1,8 +1,11 @@
-package com.tomazwang.lcthw.views.screen
+package com.tomazwang.lcthw.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,6 +22,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,10 +31,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tomazwang.lcthw.data.model.MusicGenre
 import com.tomazwang.lcthw.data.repo.SpotiSearchRepo
 import com.tomazwang.lcthw.ui.theme.SpotiColor
 import com.tomazwang.lcthw.views.component.SpotiGenreBlock
+import com.tomazwang.lcthw.views.component.SpotiPlayerBar
 
 /**
  * Created by TomazWang on 2021/08/18.
@@ -39,16 +46,49 @@ import com.tomazwang.lcthw.views.component.SpotiGenreBlock
  * @since 2021/08/18
  **/
 
+private const val TAG = "SpotiSearchScreen"
+
 @Composable
 fun SpotiSearchScreen() {
     
+    Log.d(TAG, "SpotiSearchScreen: init")
+    
+    val vm: SpotiSearchScreenViewModel = viewModel()
+    
+    val currentSelected by vm.currentSelected.observeAsState()
+    val currentFav by vm.isFav.observeAsState()
+    
+    
+    Column(
+        verticalArrangement = Arrangement.Bottom,
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth()
+    
+    ) {
+        
+        SearchPage(modifier = Modifier.weight(1f), onSelect = {
+            vm.select(it)
+        })
+        SpotiPlayerBar(
+            genre = currentSelected!!,
+            isFav = currentFav!!,
+            onFav = { vm.toggleFav(it.id) },
+            modifier = Modifier
+                .height(60.dp)
+        )
+    }
+}
+
+
+@Composable
+private fun SearchPage(onSelect: (MusicGenre) -> Unit = {}, modifier: Modifier = Modifier) {
     val repo = SpotiSearchRepo()
     
     LazyColumn(
         modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .then(modifier),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item { Spacer(modifier = Modifier.height(32.dp)) }
@@ -73,7 +113,7 @@ fun SpotiSearchScreen() {
         
         items(repo.getTopGenreList().chunked(2)) { twoItem ->
             val (first, second) = twoItem
-            GenreRow(first = first, second = second)
+            GenreRow(first = first, second = second, onSelect = onSelect)
         }
         
         item {
@@ -83,7 +123,7 @@ fun SpotiSearchScreen() {
         
         items(repo.getAllGenreList().chunked(2)) { twoItem ->
             val (first, second) = twoItem
-            GenreRow(first = first, second = second)
+            GenreRow(first = first, second = second, onSelect = onSelect)
         }
         
     }
@@ -91,7 +131,7 @@ fun SpotiSearchScreen() {
 
 
 @Composable
-private fun GenreRow(first: MusicGenre, second: MusicGenre) {
+private fun GenreRow(first: MusicGenre, second: MusicGenre, onSelect: (MusicGenre) -> Unit) {
     
     Row(
         modifier = Modifier
@@ -102,18 +142,21 @@ private fun GenreRow(first: MusicGenre, second: MusicGenre) {
             title = first.title,
             coverImgRes = first.image,
             color = first.color,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .clickable { onSelect(first) }
         )
         Spacer(modifier = Modifier.width(12.dp))
         SpotiGenreBlock(
             title = second.title,
             coverImgRes = second.image,
             color = second.color,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .clickable { onSelect(second) }
         )
     }
 }
-
 
 
 @Composable
@@ -141,8 +184,6 @@ private fun SearchBox(hintText: String, modifier: Modifier = Modifier) {
         }
     }
 }
-
-
 
 
 @Preview(
